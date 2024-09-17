@@ -1,9 +1,11 @@
 package com.mycompany.node_pad;
 
+import java.awt.CheckboxMenuItem;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -18,11 +20,13 @@ import javax.swing.undo.UndoManager;
 public class Node_Pad extends JFrame {
 
     private JMenuBar mBar;
-    private JMenu mFile, mEdit, mFormat, mView, mHelp;
+    private JMenu mFile, mEdit, mFormat, mView, mZoom, mHelp;
     private JMenuItem itemNew, itemNewwindow, itemOpen, itemSave, itemSaveas, itemPagesetup, itemPrint, itemExit;
     private JMenuItem itemUndo, itemCut, itemCopy, itemDelete, itemPaste, itemSearch, itemFind, itemFindtext, itemFindprevious, itemReplace, itemGoto, itemSelectall, itemTime;
-    
-    private JCheckBoxMenuItem itemWrap, itemFont;
+    private JMenuItem itemZoomin, itemZoomuot, itemRestore;
+    private JMenuItem itemViewhelp, itemSendfeedback, itemAboutnotepad;
+
+    private JCheckBoxMenuItem itemWrap, itemFont, itemStatus;
     private JTextArea txtEditor;
     private UndoManager undoManager;
 
@@ -85,12 +89,17 @@ public class Node_Pad extends JFrame {
         mEdit.add(itemTime = new JMenuItem("Tiem/Date"));
 
         // Add MenuItems to "Format" Menu
-        itemWrap = new JCheckBoxMenuItem("Word Wrap");
-        itemFont = new JCheckBoxMenuItem("Font");
-        mFormat.add(itemWrap);
-        mFormat.add(itemFont);
-        
+        mFormat.add(itemWrap = new JCheckBoxMenuItem("Word Wrap"));
+        mFormat.add(itemFont = new JCheckBoxMenuItem("Font"));
 
+        mView.add(mZoom = new JMenu("Zoom"));
+        mZoom.add(itemZoomin = new JMenuItem("Zoom In"));
+        mZoom.add(itemZoomuot = new JMenuItem("Zoom Out"));
+        mView.add(itemStatus = new JCheckBoxMenuItem("Status Bar", true));
+
+        mHelp.add(itemViewhelp = new JMenuItem("View Help"));
+        mHelp.add(itemSendfeedback = new JMenuItem("Send Feed Back"));
+        mHelp.add(itemAboutnotepad = new JMenuItem("About Note Pad"));
 
         // Create keyboard shortcuts
         itemNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
@@ -112,6 +121,8 @@ public class Node_Pad extends JFrame {
         itemReplace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_DOWN_MASK));
         itemGoto.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
         itemSelectall.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
+        itemTime.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, KeyEvent.CTRL_DOWN_MASK));
+
         itemTime.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, KeyEvent.CTRL_DOWN_MASK));
 
         // Add action listener for "Exit"
