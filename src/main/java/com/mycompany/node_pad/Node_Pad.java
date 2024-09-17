@@ -86,7 +86,7 @@ public class Node_Pad extends JFrame {
         mEdit.add(itemGoto = new JMenuItem("Go To"));
         mEdit.addSeparator();
         mEdit.add(itemSelectall = new JMenuItem("Select All"));
-        mEdit.add(itemTime = new JMenuItem("Tiem/Date"));
+        mEdit.add(itemTime = new JMenuItem("Time/Date"));
 
         // Add MenuItems to "Format" Menu
         mFormat.add(itemWrap = new JCheckBoxMenuItem("Word Wrap"));
@@ -132,18 +132,6 @@ public class Node_Pad extends JFrame {
             }
         });
 
-        // Add MenuItems to "Edit" Menu
-        mEdit.add(itemUndo = new JMenuItem("Undo"));
-        mEdit.addSeparator();
-        mEdit.add(itemCut = new JMenuItem("Cut"));
-        mEdit.add(itemCopy = new JMenuItem("Copy"));
-        mEdit.add(itemPaste = new JMenuItem("Paste"));
-
-        // Add keyboard shortcuts
-        itemUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
-        itemCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
-        itemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
-        itemPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
 
         // Attach the MenuBar to the frame
         setJMenuBar(mBar);
