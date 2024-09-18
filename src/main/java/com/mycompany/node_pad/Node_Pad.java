@@ -2,11 +2,23 @@ package com.mycompany.node_pad;
 
 import java.awt.CheckboxMenuItem;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import static java.awt.print.Printable.NO_SUCH_PAGE;
+import static java.awt.print.Printable.PAGE_EXISTS;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import static java.nio.file.Files.size;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -15,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
+import static javax.swing.text.StyleConstants.Size;
 import javax.swing.undo.UndoManager;
 
 public class Node_Pad extends JFrame {
@@ -37,6 +50,7 @@ public class Node_Pad extends JFrame {
         setSize(700, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        procesEvent();
     }
 
     private void createMenu() {
@@ -132,16 +146,26 @@ public class Node_Pad extends JFrame {
             }
         });
 
-
         // Attach the MenuBar to the frame
         setJMenuBar(mBar);
 
+        // Edit Mfile
+        itemNew.addActionListener(e -> nevv());
+        itemNewwindow.addActionListener(e -> newWindow());
+        itemOpen.addActionListener(e -> open());
+        itemSave.addActionListener(e -> save());
+        itemSaveas.addActionListener(e -> saveAs());
+        itemPagesetup.addActionListener(e -> pageSetup());
+        itemPrint.addActionListener(e -> print());
+
         // Action Listeners
-        itemUndo.addActionListener(e -> undoAction());
+        itemUndo.addActionListener(e -> undo());
         itemCut.addActionListener(e -> txtEditor.cut());
         itemCopy.addActionListener(e -> txtEditor.copy());
         itemPaste.addActionListener(e -> txtEditor.paste());
-        itemWrap.addActionListener(e -> toggleWordWrap());
+        itemDelete.addActionListener(e -> delete());
+        itemWrap.addActionListener(e -> WordWrap());
+
     }
 
     private void createGUI() {
@@ -154,14 +178,127 @@ public class Node_Pad extends JFrame {
         undoManager = new UndoManager();
         txtEditor.getDocument().addUndoableEditListener(undoManager);
     }
+////////////////////////////////////////////////////////
 
-    private void undoAction() {
+    private void nevv() {
+        txtEditor.setText(""); // Xoá hết văn bản
+    }
+
+    private void newWindow() {
+        Node_Pad newNotepad = new Node_Pad("Notepad");
+        newNotepad.setVisible(true); // làm mới note pad
+    }
+
+    private void open() {
+        JFileChooser dlg = new JFileChooser();
+        if (dlg.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) 
+            try {
+            FileInputStream fis = new FileInputStream(dlg.getSelectedFile());
+            byte[] b = new byte[fis.available()];
+            fis.read(b);
+            txtEditor.setText(new String(b));
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi đọc File!!");
+        }
+    }
+
+    private void save() {
+        JFileChooser dlg = new JFileChooser();
+        if (dlg.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) 
+            try {
+            FileOutputStream fos = new FileOutputStream(dlg.getSelectedFile());
+            fos.write(txtEditor.getText().getBytes());
+            fos.close();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi đọc File!!");
+        }
+    }
+
+    private void saveAs() {
+        JFileChooser dlg = new JFileChooser();
+        if (dlg.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) 
+            try {
+            FileOutputStream fos = new FileOutputStream(dlg.getSelectedFile());
+            fos.write(txtEditor.getText().getBytes());
+            fos.close();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi đọc File!!");
+        }
+    }
+
+    private void pageSetup() {
+        String marginStr = JOptionPane.showInputDialog(this, "Nhập lề (top, left, bottom, right) bằng pixel được phân cách bằng dấu phẩy(0,0,0,0):", "Thiết lập trang", JOptionPane.PLAIN_MESSAGE);
+
+        if (marginStr != null && !marginStr.isEmpty()) {
+            try {
+                // Parse the margin values
+                String[] margins = marginStr.split(",");
+                if (margins.length == 4) {
+                    int top = Integer.parseInt(margins[0].trim());
+                    int left = Integer.parseInt(margins[1].trim());
+                    int bottom = Integer.parseInt(margins[2].trim());
+                    int right = Integer.parseInt(margins[3].trim());
+
+                    // Set margins in the JTextArea
+                    txtEditor.setMargin(new Insets(top, left, bottom, right));
+                } else {
+                    JOptionPane.showMessageDialog(this, "Nhập chính xác khoảng cách 4 giá trị trên!.", "không hợp lệ??", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Giá trị không hợp lệ.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void print() {
+        PrinterJob pr = PrinterJob.getPrinterJob();
+        pr.setJobName("Print Document");
+
+        // Thiết lập nội dung có thể in (JTextArea)
+        pr.setPrintable((graphics, pageFormat, pageIndex) -> {
+            if (pageIndex > 0) {
+                return NO_SUCH_PAGE; // Chỉ có một trang có sẵn
+            }
+            // Dịch bản in để căn chỉnh đúng trên giấy
+            graphics.translate((int) pageFormat.getImageableX(), (int) pageFormat.getImageableY());
+
+            // In nội dung vùng văn bản
+            txtEditor.print(graphics);
+            return PAGE_EXISTS;
+        });
+
+        // Hiển thị hộp thoại in và tiến hành in nếu người dùng chấp nhận
+        if (pr.printDialog()) {
+            try {
+                pr.print();
+            } catch (PrinterException e) {
+                JOptionPane.showMessageDialog(this, "Print failed: " + e.getMessage(), "Print Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+//////////////////////////////////////////////
+
+    private void undo() {
         if (undoManager.canUndo()) {
             undoManager.undo();
         }
     }
 
-    private void toggleWordWrap() {
+    private void delete() {
+        // Nhận vị trí bắt đầu và kết thúc của văn bản đã chọn
+        int start = txtEditor.getSelectionStart();
+        int end = txtEditor.getSelectionEnd();
+
+        // Nếu có một số văn bản được chọn, hãy xóa nó
+        if (start != end) {
+            txtEditor.replaceRange("", start, end);
+        }
+    }
+
+    private void WordWrap() {
         txtEditor.setLineWrap(itemWrap.isSelected());
         txtEditor.setWrapStyleWord(itemWrap.isSelected());
     }
@@ -169,5 +306,23 @@ public class Node_Pad extends JFrame {
     public static void main(String[] args) {
         Node_Pad notepad = new Node_Pad("Notepad");
         notepad.setVisible(true);
+    }
+/////////////////////////////////
+
+    private void procesEvent() {
+        itemZoomin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Size += 4;
+                txtEditor.setFont(new Font("Arial", Font.PLAIN, 20));
+            }
+        });
+        itemZoomuot.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Size -= 4;
+                txtEditor.setFont(new Font("Arial", Font.PLAIN, 20));
+            }
+        });
     }
 }
