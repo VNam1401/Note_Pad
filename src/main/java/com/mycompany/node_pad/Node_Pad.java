@@ -1,5 +1,6 @@
 package com.mycompany.node_pad;
 
+import java.awt.BorderLayout;
 import java.awt.CheckboxMenuItem;
 import java.awt.Font;
 import java.awt.Insets;
@@ -16,6 +17,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import static java.nio.file.Files.size;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -26,7 +29,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.plaf.ToolBarUI;
 import static javax.swing.text.StyleConstants.Size;
 import javax.swing.undo.UndoManager;
 
@@ -38,10 +43,11 @@ public class Node_Pad extends JFrame {
     private JMenuItem itemUndo, itemCut, itemCopy, itemDelete, itemPaste, itemSearch, itemFind, itemFindtext, itemFindprevious, itemReplace, itemGoto, itemSelectall, itemTime;
     private JMenuItem itemZoomin, itemZoomuot, itemRestore;
     private JMenuItem itemViewhelp, itemSendfeedback, itemAboutnotepad;
-
+    private JButton btnnew, btnopen, btnsave;
     private JCheckBoxMenuItem itemWrap, itemFont, itemStatus;
     private JTextArea txtEditor;
     private UndoManager undoManager;
+    private  JToolBar toolbar;
 
     public Node_Pad(String title) {
         super(title);
@@ -50,7 +56,7 @@ public class Node_Pad extends JFrame {
         setSize(700, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        procesEvent();
+        createtoolbar();
     }
 
     private void createMenu() {
@@ -309,20 +315,15 @@ public class Node_Pad extends JFrame {
     }
 /////////////////////////////////
 
-    private void procesEvent() {
-        itemZoomin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Size += 4;
-                txtEditor.setFont(new Font("Arial", Font.PLAIN, 20));
-            }
-        });
-        itemZoomuot.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Size -= 4;
-                txtEditor.setFont(new Font("Arial", Font.PLAIN, 20));
-            }
-        });
+    private void createtoolbar() {
+        toolbar = new JToolBar();
+        toolbar.add(btnnew = new JButton("New"));
+        toolbar.add(btnopen = new JButton("Open"));
+        toolbar.add(btnsave = new JButton("Save"));
+        add(toolbar, BorderLayout.NORTH);
+        btnnew.setIcon(new ImageIcon(this.getClass().getResource("/images/new.png")));
+        btnopen.setIcon(new ImageIcon(this.getClass().getResource("/images/open.png")));
+        btnsave.setIcon(new ImageIcon(this.getClass().getResource("/images/save.png")));
+
     }
 }
