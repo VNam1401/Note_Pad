@@ -21,14 +21,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.plaf.ToolBarUI;
@@ -47,7 +51,7 @@ public class Node_Pad extends JFrame {
     private JCheckBoxMenuItem itemWrap, itemFont, itemStatus;
     private JTextArea txtEditor;
     private UndoManager undoManager;
-    private  JToolBar toolbar;
+    private JToolBar toolbar;
 
     public Node_Pad(String title) {
         super(title);
@@ -151,7 +155,6 @@ public class Node_Pad extends JFrame {
                 System.exit(0);
             }
         });
-
         // Attach the MenuBar to the frame
         setJMenuBar(mBar);
 
@@ -171,7 +174,9 @@ public class Node_Pad extends JFrame {
         itemPaste.addActionListener(e -> txtEditor.paste());
         itemDelete.addActionListener(e -> delete());
         itemWrap.addActionListener(e -> WordWrap());
+        itemReplace.addActionListener(e -> Replace());
 
+        itemFont.addActionListener(e -> Font());
     }
 
     private void createGUI() {
@@ -321,9 +326,99 @@ public class Node_Pad extends JFrame {
         toolbar.add(btnopen = new JButton("Open"));
         toolbar.add(btnsave = new JButton("Save"));
         add(toolbar, BorderLayout.NORTH);
-        btnnew.setIcon(new ImageIcon(this.getClass().getResource("/images/new.png")));
-        btnopen.setIcon(new ImageIcon(this.getClass().getResource("/images/open.png")));
-        btnsave.setIcon(new ImageIcon(this.getClass().getResource("/images/save.png")));
+//        btnnew.setIcon(new ImageIcon(this.getClass().getResource("/images/new.png")));
+//        btnopen.setIcon(new ImageIcon(this.getClass().getResource("/images/open.png")));
+//        btnsave.setIcon(new ImageIcon(this.getClass().getResource("/images/save.png")));
+
+    }
+
+    private void Replace() {
+// Create a panel to hold the input fields
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+
+        // Create text fields for find and replace input
+        JTextField findField = new JTextField(20);
+        JTextField replaceField = new JTextField(20);
+
+        // Add the fields to the panel
+        panel.add(new JLabel("Find: "), BorderLayout.WEST);
+        panel.add(findField, BorderLayout.CENTER);
+        panel.add(new JLabel("Replace: "), BorderLayout.SOUTH);
+        panel.add(replaceField, BorderLayout.EAST);
+
+        // Show the dialog and get the user's input
+        int result = JOptionPane.showConfirmDialog(this, panel, "Replace", JOptionPane.OK_CANCEL_OPTION);
+
+        // If the user pressed OK, perform the replace operation
+        if (result == JOptionPane.OK_OPTION) {
+            String findText = findField.getText();
+            String replaceText = replaceField.getText();
+
+            // If the find text is not empty, proceed with replacement
+            if (!findText.isEmpty()) {
+                replaceText(findText, replaceText);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập văn bản để tìm.");
+            }
+        }
+    }
+
+    private void replaceText(String findText, String replaceText) {
+// Get the current text from the editor
+        String content = txtEditor.getText();
+
+        // Replace all occurrences of the findText with replaceText
+        if (content.contains(findText)) {
+            content = content.replace(findText, replaceText);
+            txtEditor.setText(content);
+            JOptionPane.showMessageDialog(this, "All occurrences of '" + findText + "' have been replaced with '" + replaceText + "'.");
+        } else {
+            JOptionPane.showMessageDialog(this, "The text '" + findText + "' was not found.");
+        }
+    }
+
+    private void Font() {
+        // Danh sách các font có sẵn trong hệ thống
+        String[] fonts = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+
+        // Tạo JComboBox để người dùng chọn font
+        JComboBox<String> fontBox = new JComboBox<>(fonts);
+
+        // Tạo JComboBox để người dùng chọn kích thước chữ
+        Integer[] sizes = {1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 50, 52, 54, 56, 58, 60};
+        JComboBox<Integer> sizeBox = new JComboBox<>(sizes);
+
+        // Tạo JCheckBox để người dùng chọn kiểu chữ (đậm và nghiêng)
+        JCheckBox boldBox = new JCheckBox("Bold");
+        JCheckBox italicBox = new JCheckBox("Italic");
+
+        // Tạo một JPanel để chứa các thành phần
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(new JLabel("Font: "), BorderLayout.WEST);
+        panel.add(fontBox, BorderLayout.CENTER);
+        panel.add(new JLabel("Size: "), BorderLayout.EAST);
+        panel.add(sizeBox, BorderLayout.SOUTH);
+        panel.add(boldBox, BorderLayout.NORTH);
+        panel.add(italicBox, BorderLayout.AFTER_LINE_ENDS);
+
+        // Hiển thị hộp thoại
+        int result = JOptionPane.showConfirmDialog(this, panel, "Chọn Font", JOptionPane.OK_CANCEL_OPTION);
+
+        // Nếu người dùng nhấn OK, thay đổi font trong JTextArea
+        if (result == JOptionPane.OK_OPTION) {
+            String fontName = (String) fontBox.getSelectedItem();
+            int fontSize = (Integer) sizeBox.getSelectedItem();
+            int fontStyle = Font.PLAIN;
+            if (boldBox.isSelected()) {
+                fontStyle += Font.BOLD;
+            }
+            if (italicBox.isSelected()) {
+                fontStyle += Font.ITALIC;
+            }
+
+            // Áp dụng font cho JTextArea
+            txtEditor.setFont(new Font(fontName, fontStyle, fontSize));
+        }
 
     }
 }
